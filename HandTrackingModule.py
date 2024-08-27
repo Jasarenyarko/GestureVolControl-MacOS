@@ -27,19 +27,32 @@ class HandDector():
          
         return self.img  
     
-    def FindPosition(self,img,draw=True):
+    def FindPosition(self,img,draw=True,DrawBox = True):
         self.lmlist = []
+        xList = []
+        yList = []
+        boundingBox = []
+        xMin,xMax,yMin,yMax = 0,0,0,0
 
         if self.results.multi_hand_landmarks:
             for handLms in self.results.multi_hand_landmarks:
                 for id, landmark in enumerate(handLms.landmark):
                     height,width,channel = self.img.shape
                     cx,cy = int(landmark.x*width),int(landmark.y*height)
+                    xList.append(cx)
+                    yList.append(cy)
                     self.lmlist.append([id,cx,cy])
                     if draw:
                         cv2.circle(img,[cx,cy],10,(0,0,255),cv2.FILLED)
+                print (xList)
+                xMin, xMax = min(xList),max(xList)
+                yMin, yMax = min(yList),max(yList)
+                boundingBox = xMin,yMin,xMax,yMax
+        if DrawBox:
+            cv2.rectangle(self.img,(xMin,yMin),(xMax,yMax),(0,0,255),2)
+            # print(xMax,xMin,yMax,yMin)
                         
-        return self.lmlist
+        return self.lmlist, boundingBox
     
 
     def Highlight(self,img,position=[],cirle= True):
